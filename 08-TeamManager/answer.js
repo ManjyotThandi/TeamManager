@@ -5,14 +5,14 @@ var inquirer = require('inquirer');
 var Player = function(name, position, offense, defense){
     this.name = name;
     this.position = position;
-    this.offense = offense;
-    this.defense = defense;
+    this.offense = parseFloat(offense);
+    this.defense = parseFloat(defense);
     this.goodGame = function(){
         if(Math.random() > 0.5){
-            this.offense += 5;
+            this.offense += parseFloat(5);
         }
         else{
-            this.defense +- 5;
+            this.defense += parseFloat(5);
         }
     };
     this.badGame = function(){
@@ -158,8 +158,11 @@ else{
 
     // plays the game
     function playGame(){
+    if( y < 5){
     const randomNum1 = Math.floor(Math.random() * 20);
     const randomNum2 = Math.floor(Math.random() * 20);
+    // console.log(randomNum1)
+    // console.log(randomNum2)
     // let sumStarterO = 0;
     // let sumStarterD = 0;
     // let teamScore = 0;
@@ -179,6 +182,8 @@ else{
     if(randomNum2 > sumStarterD){
         teamScore -= 1;
     }
+    console.log('-------SCORE--------------------')
+    console.log(`The score after ${y + parseFloat(1)} rounds is: ${teamScore}`)
 
     // prompt user to sub if they wish
     inquirer.prompt([
@@ -190,34 +195,112 @@ else{
         }
     ]).then(answers =>{
         if(answers.DecisionSub === 'Yes'){
-            console.log(starter)
+            //console.log(starter)
             inquirer.prompt([
                 {
                     type: 'list',
                     name: 'chosenPlayer',
                     message: 'Who would you like to sub off?',
-                    choices: [starter[0]]
+                    choices: ["Player 1","Player 2"]
                 },
                 {
                     type: 'list',
                     name: 'chosenPlayer1',
                     message: 'Who would you like to sub on?',
-                    choices: [subs[0]]
+                    choices: ["Player 3"]
                 }
             ]).then(answers =>{
                 console.log(answers)
                 // rearranges the arrays depending on who was subbed on/off
-                starter.splice(starter.indexOf(answers.chosenPlayer),1);
-                subs.splice(subs.indexOf(answers.chosenPlayer1),1)
-                starter.push(answers.chosenPlayer1);
-                subs.push(answers.chosenPlayer);
-                console.log(starter)
-                console.log(subs)
+                // starter.splice(starter.indexOf(answers.chosenPlayer),1);
+                // subs.splice(subs.indexOf(answers.chosenPlayer1),1)
+                // starter.push(answers.chosenPlayer1);
+                // subs.push(answers.chosenPlayer);
+                // console.log(starter)
+                // console.log(subs)
+                if(answers.chosenPlayer === "Player 1"){
+                    var personSub = starter[0]
+                    var personStart = subs[0]
+                    subs.splice(0,1)
+                    subs.push(personSub)
+                    starter.push(personStart)
+                    starter.splice(0,1)
+                    console.log('----PLAYERS ON BENCH-----')
+                    console.log(subs);
+                    console.log('----STARTERS-----')
+                    console.log(starter)
+                    
+                }
+                else if(answers.chosenPlayer === "Player 2"){
+                    var personSub = starter[1]
+                    var personStart = subs[0]
+                    subs.push(personSub)
+                    subs.splice(0,1)
+                    starter.push(personStart)
+                    starter.splice(1,1)
+                    console.log('-----PLAYERS ON BENCH-----')
+                    console.log(subs);
+                    console.log('----STARTERS----')
+                    console.log(starter)
+                }
+                y++
+                playGame()
             })
+        }
+        else{
+            // if person selects no subs, play the next round
+            y++
+            playGame()
         }
     })
 }
-playGame()   
+else {
+    console.log(`---------------FINAL SCORE-----------------`)
+    console.log(`Five rounds have been played. The final score is ${teamScore}`)
+    if(teamScore > 0){
+        for(i=0; i < starter.length; i++){
+            starter[i].goodGame()
+        }
+    }
+    else if(teamScore < 0) {
+        for(i=0; i < starter.length; i++){
+            starter[i].goodGame()
+        }
+    }
+    else{
+       console.log('It was a tie game. No changes made to player attributes') 
+    }
+
+    console.log(`------UPDATED STATS------`)
+    console.log('STARTERS')
+    for(i=0; i < starter.length; i++){
+        starter[i].printStats()
+    }
+    console.log('BENCH PLAYERS')
+    for(i=0; i < subs.length; i++){
+        subs[i].printStats()
+    }
+    
+    // prompt the user and ask them if they would like to play again
+    inquirer.prompt([
+        {
+          type: 'list',
+          name: 'playagain',
+          message: 'Would you like to play again?' ,
+          choices: ["Yes","No"] 
+        }
+    ]).then(function(answers){
+        if(answers.playagain === "Yes"){
+            y = 0;
+            playGame()
+        }
+        else{
+            console.log('Thanks for playing. See you next game')
+        }
+    })
+}}
+playGame()
+
 }
 };
 
